@@ -6,6 +6,7 @@ let categories = [];
 let menuItems = [];
 let selectedTable = null;
 let selectedPaymentMethod = null;
+let cumulativeTotal = 0; // 追加: これまでの累計合計金額
 
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', async () => {
@@ -22,6 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // テーブル選択モーダルを表示
     showTableSelectModal();
 });
+
 // Supabase SDKの読み込み
 async function loadSupabaseSDK() {
     return new Promise((resolve) => {
@@ -53,12 +55,51 @@ async function selectTable(tableNumber) {
     selectedTable = tableNumber;
     document.getElementById('tableNumber').textContent = tableNumber;
     document.getElementById('tableSelectModal').style.display = 'none';
+
+    // テーブルが選択されたら、そのテーブルのこれまでの合計をリセットまたはロードする
+    await resetOrLoadCumulativeTotal(tableNumber); 
+    
     // データ読み込み
     await loadCategories();
     await loadMenuItems();
     
     showToast(`テーブル ${tableNumber} を選択しました`);
 }
+
+// 追加: テーブルごとの累計合計金額をリセットまたはロードする関数
+async function resetOrLoadCumulativeTotal(tableNumber) {
+    try {
+        // テーブルの既存の累計金額をSupabaseから取得
+        const { data, error } = await supabase
+            .from('tables') // 仮に 'tables' テーブルに累計金額を保存するとします
+            .select('cumulative_amount')
+            .eq('table_number', tableNumber)
+            .single();
+
+        if (error && error.code !== 'PGRST116') { // PGRST116はデータが見つからないエラーコード
+            throw error;
+        }
+
+        if (data) {
+            // 既存のデータがあればロード
+            cumulativeTotal = data.cumulative_amount || 0;
+            showToast(`テーブル ${tableNumber} の前回の合計金額をロードしました`, 'info');
+        } else {
+            // データがなければ新しいテーブルエントリを作成し、累計金額を0に初期化
+            const { error: insertError } = await supabase
+                .from('tables')
+                .insert([{ table_number: tableNumber, cumulative_amount: 0 }]);
+            if (insertError) throw insertError;
+            cumulativeTotal = 0;
+            showToast(`テーブル ${tableNumber} の累計合計金額をリセットしました`, 'info');
+        }
+        updateCumulativeTotalDisplay(); // 累計金額を画面に表示
+    } catch (error) {
+        console.error('累計合計金額のリセット/ロードエラー:', error);
+        showToast('累計金額の処理に失敗しました', 'error');
+    }
+}
+
 
 // カテゴリー読み込み
 async function loadCategories() {
@@ -184,13 +225,13 @@ function renderCart() {
             </div>
         `;
         submitBtn.disabled = true;
-        checkoutBtn.disabled = true; // カートが空の場合は会計ボタンも無効化
+        checkoutBtn.disabled = cumulativeTotal === 0; // 変更: カートが空でも累計があれば会計可能に
         return;
     }
     
     submitBtn.disabled = false;
-    checkoutBtn.disabled = false; // カートに商品があれば会計ボタンを有効化
-
+    checkoutBtn.disabled = false;
+    
     cart.forEach(item => {
         const cartItem = document.createElement('div');
         cartItem.className = 'cart-item';
@@ -242,6 +283,34 @@ function updateTotal() {
     document.getElementById('total').textContent = `¥${total.toLocaleString()}`;
 }
 
+// 追加: 累計合計金額表示の更新
+function updateCumulativeTotalDisplay() {
+    // 累計合計金額を表示する要素がHTMLにないため、一時的にトーストで表示
+    // 実際には、例えばカートセクションの上部などに専用の要素を追加する必要があります。
+    // 例: <div id="cumulativeTotalDisplay">累計: ¥0</div>
+    // その場合、以下の行を置き換えます:
+    // document.getElementById('cumulativeTotalDisplay').textContent = `累計: ¥${cumulativeTotal.toLocaleString()}`;
+
+    // カートの合計エリアの下に累計金額表示を追加する例（CSS調整が必要）
+    // console.log(`現在の累計合計金額: ¥${cumulativeTotal.toLocaleString()}`); // デバッグ用
+    const cartTotalElement = document.querySelector('.cart-total');
+    let cumulativeTotalRow = document.getElementById('cumulativeTotalRow');
+    if (!cumulativeTotalRow) {
+        cumulativeTotalRow = document.createElement('div');
+        cumulativeTotalRow.className = 'total-row cumulative-total';
+        cumulativeTotalRow.id = 'cumulativeTotalRow';
+        cumulativeTotalRow.innerHTML = `<span>累計:</span><span id="cumulativeTotalAmount">¥${cumulativeTotal.toLocaleString()}</span>`;
+        cartTotalElement.parentNode.insertBefore(cumulativeTotalRow, cartTotalElement.nextSibling); // cart-totalの後に挿入
+    } else {
+        document.getElementById('cumulativeTotalAmount').textContent = `¥${cumulativeTotal.toLocaleString()}`;
+    }
+
+    // 会計ボタンの有効/無効を更新
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    checkoutBtn.disabled = cart.length === 0 && cumulativeTotal === 0;
+}
+
+
 // カートクリア
 function clearCart() {
     if (cart.length > 0 && confirm('カートの内容をすべて削除しますか？')) {
@@ -262,14 +331,15 @@ async function submitOrder() {
     try {
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         const tax = Math.floor(subtotal * window.APP_CONFIG.taxRate);
-        const total = subtotal + tax;
+        const orderTotal = subtotal + tax; // 注文単体の合計
+
         // 注文データ作成
         const { data: orderData, error: orderError } = await supabase
             .from('orders')
             .insert([{
                 table_id: selectedTable,
                 status: window.APP_CONFIG.orderStatus.PENDING,
-                total_amount: total
+                total_amount: orderTotal // 注文単体の合計を保存
             }])
             .select()
             .single();
@@ -288,7 +358,12 @@ async function submitOrder() {
         if (itemsError) throw itemsError;
         
         showToast('ご注文を承りました！');
-        
+
+        // 累計合計金額を更新
+        cumulativeTotal += orderTotal;
+        await updateCumulativeTotalInDatabase(); // データベースに累計金額を保存
+        updateCumulativeTotalDisplay(); // 画面表示を更新
+
         // 注文後カートをクリア
         cart = [];
         renderCart();
@@ -303,12 +378,28 @@ async function submitOrder() {
     }
 }
 
+// 追加: データベースの累計金額を更新する関数
+async function updateCumulativeTotalInDatabase() {
+    try {
+        const { error } = await supabase
+            .from('tables')
+            .update({ cumulative_amount: cumulativeTotal })
+            .eq('table_number', selectedTable);
+        if (error) throw error;
+    } catch (error) {
+        console.error('累計合計金額のデータベース更新エラー:', error);
+        showToast('累計金額の保存に失敗しました', 'error');
+    }
+}
+
 // 支払いモーダルの表示
 function showPaymentModal() {
-    if (cart.length === 0) {
-        showToast('カートに商品がありません', 'error');
+    // 変更: カートが空でも累計があれば会計に進める
+    if (cart.length === 0 && cumulativeTotal === 0) {
+        showToast('カートに商品がなく、累計注文もありません。', 'error');
         return;
     }
+    // ここで会計モーダルに現在の累計金額を表示するロジックを追加することも可能
     document.getElementById('paymentModal').style.display = 'block';
 }
 
@@ -321,7 +412,7 @@ function selectPayment(method) {
 }
 
 // 支払い処理
-function proceedToPayment() {
+async function proceedToPayment() { // async を追加
     if (!selectedPaymentMethod) {
         alert('支払い方法を選択してください');
         return;
@@ -333,9 +424,16 @@ function proceedToPayment() {
         showToast('まとめて会計を選択しました。レジでお支払いください。');
     }
     
+    // 会計完了時に累計金額をリセット
+    cumulativeTotal = 0;
+    await updateCumulativeTotalInDatabase(); // データベースの累計金額もリセット
+    updateCumulativeTotalDisplay(); // 画面表示もリセット
+    
     closePaymentModal();
-    // 会計後のカートクリアは注文送信時に行うため、ここでは不要
-
+    // 会計後のカートクリアは注文送信時に行うため、ここでは不要（もし注文確定せずに会計した場合はcartに残っているのでクリア）
+    cart = [];
+    renderCart();
+    updateTotal();
 }
 
 // 支払いモーダルを閉じる
@@ -368,7 +466,7 @@ window.updateQuantity = updateQuantity;
 window.removeItem = removeItem;
 window.clearCart = clearCart;
 window.submitOrder = submitOrder;
-window.showPaymentModal = showPaymentModal; // 新しく追加
+window.showPaymentModal = showPaymentModal;
 window.selectPayment = selectPayment;
 window.proceedToPayment = proceedToPayment;
 window.closePaymentModal = closePaymentModal;
