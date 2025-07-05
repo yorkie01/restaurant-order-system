@@ -1,0 +1,56 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install envsubst
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gettext-base
+      
+      - name: Build configuration file
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          API_ENDPOINT: ${{ secrets.API_ENDPOINT }}
+        run: |
+          # config.template.jsから環境変数を置換してconfig.jsを生成
+          envsubst < js/config.template.js > js/config.js
+          
+          # テンプレートファイルを削除（セキュリティのため）
+          rm js/config.template.js
+          
+          # 生成されたファイルの確認（デバッグ用）
+          echo "Config file generated successfully"
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: .
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>テーブルオーダーシステム</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="header">
+        <div class="table-info">テーブル: <span id="tableNumber">-</span></div>
+        <div class="call-staff" onclick="callStaff()">スタッフ呼出</div>
+    </div>
+    
+    <div class="main-container">
+        <div class="menu-section">
+            <div class="category-tabs" id="categoryTabs">
+                <!-- カテゴリータブが動的に生成されます -->
+            </div>
+            
+            <div class="menu-grid" id="menuGrid">
+                <!-- メニューアイテムが動的に生成されます -->
+            </div>
+        </div>
+        
+        <div class="cart-section">
+            <div class="cart-header">注文内容</div>
+            <div class="cart-items" id="cartItems">
+                <div class="cart-empty">
+                    <div class="cart-empty-icon">🛒</div>
+                    <div>カートは空です</div>
+                </div>
+            </div>
+            <div class="cart-total">
+                <div class="total-row">
+                    <span>小計:</span>
+                    <span id="subtotal">¥0</span>
+                </div>
+                <div class="total-row">
+                    <span>消費税 (10%):</span>
+                    <span id="tax">¥0</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>合計:</span>
+                    <span id="total">¥0</span>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="clearCart()">クリア</button>
+                <button class="btn btn-primary" id="submitBtn" onclick="submitOrder()" disabled>注文する</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- モーダル -->
+    <div class="modal" id="tableSelectModal">
+        <div class="modal-content">
+            <div class="modal-header">テーブル番号を選択</div>
+            <div class="table-grid" id="tableGrid">
+                <!-- テーブル番号が動的に生成されます -->
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="paymentModal">
+        <div class="modal-content">
+            <div class="modal-header">お会計方法</div>
+            <div class="payment-options">
+                <div class="payment-option" onclick="selectPayment('together')">
+                    <h3>まとめて会計</h3>
+                    <p>テーブル全員分をまとめてお支払い</p>
+                </div>
+                <div class="payment-option" onclick="selectPayment('individual')">
+                    <h3>個別会計</h3>
+                    <p>注文した商品のみお支払い</p>
+                </div>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="closePaymentModal()">戻る</button>
+                <button class="btn btn-primary" onclick="proceedToPayment()">決定</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+    
+    <script src="js/config.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
