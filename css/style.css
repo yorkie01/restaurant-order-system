@@ -38,11 +38,11 @@ body {
 
 .main-container {
     display: flex;
-    height: calc(100vh - 60px);
+    height: calc(100vh - 60px); /* ヘッダーの高さを引く  */
 }
 
 .menu-section {
-    flex: 1;
+    flex: 2; /* 変更: メニューセクションがカートセクションより広いスペースを取る */
     padding: 20px;
     overflow-y: auto;
 }
@@ -53,6 +53,7 @@ body {
     margin-bottom: 20px;
     overflow-x: auto;
     padding-bottom: 5px;
+    -webkit-overflow-scrolling: touch; /* iOSでのスクロールをスムーズに [cite: 39, 40] */
 }
 
 .category-tab {
@@ -135,7 +136,9 @@ body {
 }
 
 .cart-section {
-    width: 400px;
+    flex: 1; /* 変更: メニューセクションより狭いスペースを取る */
+    min-width: 300px; /* 最小幅を設定して内容が潰れないように */
+    max-width: 400px; /* 必要であれば最大幅を設定 */
     background-color: white;
     padding: 20px;
     box-shadow: -2px 0 5px rgba(0,0,0,0.1);
@@ -152,11 +155,12 @@ body {
 }
 
 .cart-items {
-    flex: 1; [cite_start]/* 変更: フレックスアイテムとして残りのスペースを埋める [cite: 50]*/
-    [cite_start]overflow-y: auto; [cite: 50]
-    min-height: 150px; /* 変更: 最小高さを設定 */
-    /* 親の高さからヘッダー、パディング、合計、ボタンの高さなどを引く */
-    max-height: calc(100vh - 60px - 20px - 20px - 120px - 80px); /* 調整された計算 */
+    flex: 1;
+    overflow-y: auto;
+    min-height: 150px;
+    /* max-height: calc(100vh - (ヘッダー+cart-header+cart-total+action-buttons+paddingなど)) */
+    /* 具体的な計算は複雑なので、flex: 1 と overflow-y: auto に頼ることが多い */
+    /* モバイルメディアクエリでより厳密に制御 */
 }
 
 .cart-item {
@@ -431,91 +435,96 @@ body {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
-[cite_start]/* モバイルでのタッチ操作改善 [cite: 78]*/
+/* モバイルでのタッチ操作改善 [cite: 78] */
 @media (hover: none) and (pointer: coarse) {
     .menu-item {
-        [cite_start]-webkit-tap-highlight-color: rgba(0,0,0,0.1); [cite: 78]
+        -webkit-tap-highlight-color: rgba(0,0,0,0.1);
     }
     
     .btn {
-        [cite_start]-webkit-tap-highlight-color: rgba(0,0,0,0.1); [cite: 79]
-        min-height: 44px; [cite_start]/* Apple推奨のタッチターゲットサイズ [cite: 79]*/
+        -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+        min-height: 44px; /* Apple推奨のタッチターゲットサイズ [cite: 80] */
     }
     
     .quantity-btn {
-        [cite_start]min-width: 44px; [cite: 80]
-        [cite_start]min-height: 44px; [cite: 80]
+        min-width: 44px;
+        min-height: 44px;
     }
 }
 
-[cite_start]/* 小さい画面用の追加調整 [cite: 81]*/
+/* 小さい画面用の追加調整 [cite: 81] */
 @media (max-width: 375px) {
     .menu-grid {
-        [cite_start]grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); [cite: 81]
-        [cite_start]gap: 10px; [cite: 81]
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
     }
     
     .cart-section {
-        [cite_start]padding: 15px; [cite: 82]
+        padding: 15px;
     }
     
     .action-buttons {
-        [cite_start]flex-direction: column; [cite: 83]
+        flex-direction: column;
     }
     
     .btn {
-        [cite_start]width: 100%; [cite: 84]
+        width: 100%;
     }
 }
 @media (max-width: 768px) {
     body {
         height: auto;
-        [cite_start]overflow-y: auto; [cite: 85]
+        overflow-y: auto;
     }
     
     .main-container {
-        [cite_start]flex-direction: column; [cite: 86]
-        [cite_start]height: auto; [cite: 86]
-        [cite_start]min-height: calc(100vh - 60px); [cite: 86]
+        flex-direction: column; /* カラム表示 [cite: 86] */
+        height: auto;
+        min-height: calc(100vh - 60px);
     }
     
     .menu-section {
-        [cite_start]height: auto; [cite: 87]
-        [cite_start]min-height: 50vh; [cite: 87]
-        [cite_start]overflow-y: visible; [cite: 87]
+        height: auto;
+        min-height: 50vh; /* 変更: メニューセクションの最小高さを固定 [cite: 88] */
+        overflow-y: visible; /* 変更: メニューセクション全体ではスクロールしない */
+        padding-bottom: 20px; /* カートセクションとの間隔確保 */
     }
     
     .cart-section {
-        [cite_start]width: 100%; [cite: 88]
-        [cite_start]height: auto; [cite: 88]
-        [cite_start]position: sticky; [cite: 88]
-        [cite_start]bottom: 0; [cite: 88]
-        max-height: 50vh; [cite_start]/* 変更: カートセクションの最大高さを調整 [cite: 89]*/
-        [cite_start]box-shadow: 0 -5px 10px rgba(0,0,0,0.1); [cite: 89]
-        [cite_start]z-index: 100; [cite: 89]
+        width: 100%;
+        height: auto;
+        position: sticky;
+        bottom: 0;
+        max-height: 50vh; /* 変更: カートセクションの最大高さを画面の半分に [cite: 89] */
+        box-shadow: 0 -5px 10px rgba(0,0,0,0.1);
+        z-index: 100;
+        /* モバイルではカートヘッダー、合計、ボタンは固定、アイテムリストだけスクロール */
     }
     
     .cart-items {
-        max-height: 25vh; [cite_start]/* 変更: モバイルでのカートアイテムの表示高さを調整 [cite: 90]*/
-        [cite_start]overflow-y: auto; [cite: 90]
+        max-height: calc(50vh - 20px - 20px - 120px - 80px); /* 変更: カートセクションの高さから他の要素の高さを引く */
+        /* 50vh (cart-section) - 20px(padding-top) - 20px(padding-bottom) - 120px(cart-total approximate height) - 80px(action-buttons approximate height) */
+        overflow-y: auto;
     }
     
     .menu-grid {
-        [cite_start]grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); [cite: 91]
-        [cite_start]padding-bottom: 20px; [cite: 91]
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        padding-bottom: 20px;
     }
     
     .category-tabs {
-        [cite_start]position: sticky; [cite: 92]
-        [cite_start]top: 0; [cite: 92]
-        [cite_start]background-color: #f5f5f5; [cite: 92]
-        [cite_start]z-index: 50; [cite: 92]
-        [cite_start]padding-top: 10px; [cite: 93]
-        [cite_start]margin-top: -10px; [cite: 93]
+        position: sticky;
+        top: 0;
+        background-color: #f5f5f5;
+        z-index: 50;
+        padding-top: 10px;
+        margin-top: -10px;
+        padding-bottom: 10px; /* タブの下にもパディングを追加 */
+        border-bottom: 1px solid #ecf0f1; /* タブとメニューの区切り線 */
     }
     
     .modal-content {
-        [cite_start]max-height: 90vh; [cite: 94]
-        [cite_start]margin: 20px; [cite: 94]
+        max-height: 90vh;
+        margin: 20px;
     }
 }
