@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // テーブル選択モーダルを表示
     showTableSelectModal();
 });
-
 // Supabase SDKの読み込み
 async function loadSupabaseSDK() {
     return new Promise((resolve) => {
@@ -46,7 +45,6 @@ function showTableSelectModal() {
         tableItem.onclick = () => selectTable(table);
         tableGrid.appendChild(tableItem);
     });
-    
     modal.style.display = 'block';
 }
 
@@ -55,7 +53,6 @@ async function selectTable(tableNumber) {
     selectedTable = tableNumber;
     document.getElementById('tableNumber').textContent = tableNumber;
     document.getElementById('tableSelectModal').style.display = 'none';
-    
     // データ読み込み
     await loadCategories();
     await loadMenuItems();
@@ -70,7 +67,6 @@ async function loadCategories() {
             .from('categories')
             .select('*')
             .order('display_order');
-            
         if (error) throw error;
         
         categories = data;
@@ -89,7 +85,6 @@ async function loadMenuItems() {
             .select('*')
             .eq('is_available', true)
             .order('id');
-            
         if (error) throw error;
         
         menuItems = data;
@@ -106,7 +101,6 @@ async function loadMenuItems() {
 function renderCategoryTabs() {
     const categoryTabs = document.getElementById('categoryTabs');
     categoryTabs.innerHTML = '';
-    
     categories.forEach((category, index) => {
         const tab = document.createElement('button');
         tab.className = 'category-tab';
@@ -116,6 +110,7 @@ function renderCategoryTabs() {
         if (index === 0) {
             tab.className += ' active';
         }
+        
         tab.textContent = category.is_dog_menu ? `🐕 ${category.name}` : category.name;
         tab.onclick = () => showCategory(category.id);
         categoryTabs.appendChild(tab);
@@ -135,7 +130,6 @@ function showCategory(categoryId) {
             tab.classList.remove('active');
         }
     });
-    
     renderMenuItems();
 }
 
@@ -143,7 +137,6 @@ function showCategory(categoryId) {
 function renderMenuItems() {
     const menuGrid = document.getElementById('menuGrid');
     menuGrid.innerHTML = '';
-    
     const categoryItems = menuItems.filter(item => item.category_id === currentCategory);
     
     categoryItems.forEach(item => {
@@ -165,7 +158,6 @@ function renderMenuItems() {
 // カートに追加
 function addToCart(item) {
     const existingItem = cart.find(cartItem => cartItem.id === item.id);
-    
     if (existingItem) {
         existingItem.quantity++;
     } else {
@@ -181,7 +173,9 @@ function addToCart(item) {
 function renderCart() {
     const cartItems = document.getElementById('cartItems');
     cartItems.innerHTML = '';
-    
+    const submitBtn = document.getElementById('submitBtn');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+
     if (cart.length === 0) {
         cartItems.innerHTML = `
             <div class="cart-empty">
@@ -189,12 +183,14 @@ function renderCart() {
                 <div>カートは空です</div>
             </div>
         `;
-        document.getElementById('submitBtn').disabled = true;
+        submitBtn.disabled = true;
+        checkoutBtn.disabled = true; // カートが空の場合は会計ボタンも無効化
         return;
     }
     
-    document.getElementById('submitBtn').disabled = false;
-    
+    submitBtn.disabled = false;
+    checkoutBtn.disabled = false; // カートに商品があれば会計ボタンを有効化
+
     cart.forEach(item => {
         const cartItem = document.createElement('div');
         cartItem.className = 'cart-item';
@@ -267,7 +263,6 @@ async function submitOrder() {
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         const tax = Math.floor(subtotal * window.APP_CONFIG.taxRate);
         const total = subtotal + tax;
-        
         // 注文データ作成
         const { data: orderData, error: orderError } = await supabase
             .from('orders')
@@ -278,7 +273,6 @@ async function submitOrder() {
             }])
             .select()
             .single();
-            
         if (orderError) throw orderError;
         
         // 注文詳細データ作成
@@ -288,20 +282,18 @@ async function submitOrder() {
             quantity: item.quantity,
             price: item.price
         }));
-        
         const { error: itemsError } = await supabase
             .from('order_items')
             .insert(orderItems);
-            
         if (itemsError) throw itemsError;
         
         showToast('ご注文を承りました！');
         
-        // 会計モーダル表示
-        setTimeout(() => {
-            document.getElementById('paymentModal').style.display = 'block';
-        }, 500);
-        
+        // 注文後カートをクリア
+        cart = [];
+        renderCart();
+        updateTotal();
+
     } catch (error) {
         console.error('注文エラー:', error);
         showToast('注文の送信に失敗しました', 'error');
@@ -309,6 +301,15 @@ async function submitOrder() {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '注文する';
     }
+}
+
+// 支払いモーダルの表示
+function showPaymentModal() {
+    if (cart.length === 0) {
+        showToast('カートに商品がありません', 'error');
+        return;
+    }
+    document.getElementById('paymentModal').style.display = 'block';
 }
 
 // 支払い方法選択
@@ -333,9 +334,8 @@ function proceedToPayment() {
     }
     
     closePaymentModal();
-    cart = [];
-    renderCart();
-    updateTotal();
+    // 会計後のカートクリアは注文送信時に行うため、ここでは不要
+
 }
 
 // 支払いモーダルを閉じる
@@ -356,7 +356,6 @@ function showToast(message, type = 'success') {
     toast.textContent = message;
     toast.style.backgroundColor = type === 'error' ? '#e74c3c' : '#27ae60';
     toast.classList.add('show');
-    
     setTimeout(() => {
         toast.classList.remove('show');
     }, 3000);
@@ -369,6 +368,7 @@ window.updateQuantity = updateQuantity;
 window.removeItem = removeItem;
 window.clearCart = clearCart;
 window.submitOrder = submitOrder;
+window.showPaymentModal = showPaymentModal; // 新しく追加
 window.selectPayment = selectPayment;
 window.proceedToPayment = proceedToPayment;
 window.closePaymentModal = closePaymentModal;

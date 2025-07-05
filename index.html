@@ -15,12 +15,10 @@
     <div class="main-container">
         <div class="menu-section">
             <div class="category-tabs" id="categoryTabs">
-                <!-- カテゴリータブが動的に生成されます -->
-            </div>
+                </div>
             
             <div class="menu-grid" id="menuGrid">
-                <!-- メニューアイテムが動的に生成されます -->
-            </div>
+                </div>
         </div>
         
         <div class="cart-section">
@@ -48,17 +46,16 @@
             <div class="action-buttons">
                 <button class="btn btn-secondary" onclick="clearCart()">クリア</button>
                 <button class="btn btn-primary" id="submitBtn" onclick="submitOrder()" disabled>注文する</button>
+                <button class="btn btn-info" id="checkoutBtn" onclick="showPaymentModal()" disabled>お会計</button>
             </div>
         </div>
     </div>
     
-    <!-- モーダル -->
     <div class="modal" id="tableSelectModal">
         <div class="modal-content">
             <div class="modal-header">テーブル番号を選択</div>
             <div class="table-grid" id="tableGrid">
-                <!-- テーブル番号が動的に生成されます -->
-            </div>
+                </div>
         </div>
     </div>
     

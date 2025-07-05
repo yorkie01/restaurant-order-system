@@ -5,7 +5,7 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: -apple-system, BlinkMacMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background-color: #f5f5f5;
     height: 100vh;
     overflow: hidden;
@@ -152,8 +152,10 @@ body {
 }
 
 .cart-items {
-    flex: 1;
+    flex: 1; /* 変更: フレックスアイテムとして残りのスペースを埋める */
     overflow-y: auto;
+    min-height: 150px; /* 変更: 最小高さを設定 */
+    max-height: calc(100vh - 60px - 20px - 20px - 150px); /* 変更: 親の高さからヘッダー、パディング、合計、ボタンの高さなどを引く */
 }
 
 .cart-item {
@@ -233,6 +235,8 @@ body {
     margin-top: 20px;
     padding-top: 20px;
     border-top: 2px solid #ecf0f1;
+    /* 変更: 高さを固定または最小化 */
+    /* height: 120px; /* 例として固定値を設定 */
 }
 
 .total-row {
@@ -289,6 +293,21 @@ body {
 
 .btn-secondary:hover {
     background-color: #7f8c8d;
+}
+
+/* 追加: 会計ボタンのスタイル */
+.btn-info {
+    background-color: #3498db;
+    color: white;
+}
+
+.btn-info:hover {
+    background-color: #2980b9;
+}
+
+.btn-info:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
 }
 
 .modal {
@@ -462,13 +481,13 @@ body {
         height: auto;
         position: sticky;
         bottom: 0;
-        max-height: 50vh;
+        max-height: 50vh; /* 変更: カートセクションの最大高さを調整 */
         box-shadow: 0 -5px 10px rgba(0,0,0,0.1);
         z-index: 100;
     }
     
     .cart-items {
-        max-height: 30vh;
+        max-height: 25vh; /* 変更: モバイルでのカートアイテムの表示高さを調整 */
         overflow-y: auto;
     }
     
