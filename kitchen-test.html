@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>厨房テスト</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .btn { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; cursor: pointer; }
+        .order-card { border: 1px solid #ccc; padding: 20px; margin: 10px 0; background: #f9f9f9; }
+        .status { font-weight: bold; color: green; }
+    </style>
+</head>
+<body>
+    <h1>厨房管理システム（テスト版）</h1>
+    
+    <div id="status" class="status">システム開始中...</div>
+    
+    <h2>新規注文</h2>
+    <div id="orders"></div>
+    
+    <script>
+        console.log('厨房システム開始');
+        
+        // テスト用の簡単な関数
+        function testFunction() {
+            console.log('テスト関数が動作しました');
+            alert('ボタンが正常に動作しています！');
+        }
+        
+        // Supabaseロード確認
+        async function loadSupabase() {
+            try {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+                document.head.appendChild(script);
+                
+                script.onload = async () => {
+                    console.log('Supabase CDN ロード完了');
+                    
+                    // 設定ファイルロード
+                    const configScript = document.createElement('script');
+                    configScript.src = 'js/config.js';
+                    configScript.onload = () => {
+                        console.log('設定ファイル ロード完了');
+                        initSystem();
+                    };
+                    configScript.onerror = () => {
+                        console.error('設定ファイル ロード失敗');
+                        document.getElementById('status').textContent = 'エラー: 設定ファイルの読み込みに失敗';
+                    };
+                    document.head.appendChild(configScript);
+                };
+                
+                script.onerror = () => {
+                    console.error('Supabase CDN ロード失敗');
+                    document.getElementById('status').textContent = 'エラー: Supabase CDNの読み込みに失敗';
+                };
+                
+            } catch (error) {
+                console.error('初期化エラー:', error);
+                document.getElementById('status').textContent = 'エラー: ' + error.message;
+            }
+        }
+        
+        function initSystem() {
+            console.log('システム初期化開始');
+            document.getElementById('status').textContent = '接続中...';
+            
+            try {
+                const supabase = window.initSupabase();
+                if (supabase) {
+                    document.getElementById('status').textContent = 'Supabase接続成功！';
+                    
+                    // テストボタン追加
+                    const testBtn = document.createElement('button');
+                    testBtn.textContent = 'テストボタン';
+                    testBtn.className = 'btn';
+                    testBtn.onclick = testFunction;
+                    document.body.appendChild(testBtn);
+                    
+                } else {
+                    document.getElementById('status').textContent = 'Supabase初期化失敗';
+                }
+            } catch (error) {
+                console.error('Supabase初期化エラー:', error);
+                document.getElementById('status').textContent = 'エラー: ' + error.message;
+            }
+        }
+        
+        // ページロード時に実行
+        loadSupabase();
+    </script>
+</body>
+</html>
