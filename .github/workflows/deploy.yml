@@ -34,7 +34,7 @@ jobs:
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           API_ENDPOINT: ${{ secrets.API_ENDPOINT }}
         run: |
-          # config.template.jsから環境変数を置換してconfig.jsを生成
+          # config.template.jsから環境変数を置換してconfig.jsを生成（特定ファイルのみ）
           envsubst < js/config.template.js > js/config.js
           
           # テンプレートファイルを削除（セキュリティのため）
@@ -42,6 +42,8 @@ jobs:
           
           # 生成されたファイルの確認（デバッグ用）
           echo "Config file generated successfully"
+          echo "Generated config.js:"
+          head -10 js/config.js
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
