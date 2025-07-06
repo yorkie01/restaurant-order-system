@@ -28,22 +28,41 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gettext-base
       
-      - name: Build configuration file
+      - name: Protect HTML files from envsubst
+        run: |
+          # HTMLファイルを一時的に別の場所に移動（envsubstから保護）
+          mkdir -p protected_files
+          find . -name "*.html" -type f -exec cp {} protected_files/ \;
+          
+          echo "Protected HTML files:"
+          ls -la protected_files/
+      
+      - name: Build configuration file ONLY
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           API_ENDPOINT: ${{ secrets.API_ENDPOINT }}
         run: |
-          # config.template.jsから環境変数を置換してconfig.jsを生成（特定ファイルのみ）
+          # 設定ファイルのみを処理
           envsubst < js/config.template.js > js/config.js
           
-          # テンプレートファイルを削除（セキュリティのため）
+          # テンプレートファイルを削除
           rm js/config.template.js
           
-          # 生成されたファイルの確認（デバッグ用）
           echo "Config file generated successfully"
-          echo "Generated config.js:"
-          head -10 js/config.js
+          head -3 js/config.js
+      
+      - name: Restore HTML files
+        run: |
+          # 保護されたHTMLファイルを元の場所に戻す
+          cp protected_files/*.html ./ 2>/dev/null || echo "No HTML files to restore"
+          
+          # 保護用ディレクトリを削除
+          rm -rf protected_files
+          
+          echo "Final file check:"
+          echo "kitchen.html first line:"
+          head -1 kitchen.html
       
       - name: Setup Pages
         uses: actions/configure-pages@v4
