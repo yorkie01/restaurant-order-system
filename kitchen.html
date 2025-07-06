@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>厨房管理システム</title>
+    <link rel="stylesheet" href="css/kitchen.css">
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <h1>🍽️ 厨房管理システム</h1>
+        </div>
+        <div class="status-info">
+            <div class="connection-status" id="connectionStatus">
+                <span class="status-indicator offline"></span>
+                接続中...
+            </div>
+            <div class="current-time" id="currentTime"></div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <!-- 新規注文セクション -->
+        <div class="orders-section">
+            <div class="section-header">
+                <h2>📋 新規注文</h2>
+                <div class="order-count">
+                    <span id="pendingCount">0</span>件
+                </div>
+            </div>
+            <div class="orders-grid" id="pendingOrders">
+                <div class="no-orders">
+                    <div class="no-orders-icon">✅</div>
+                    <div>新規注文はありません</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 調理中セクション -->
+        <div class="orders-section">
+            <div class="section-header">
+                <h2>🔥 調理中</h2>
+                <div class="order-count">
+                    <span id="preparingCount">0</span>件
+                </div>
+            </div>
+            <div class="orders-grid" id="preparingOrders">
+                <div class="no-orders">
+                    <div class="no-orders-icon">✅</div>
+                    <div>調理中の注文はありません</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 完了済みセクション -->
+        <div class="orders-section">
+            <div class="section-header">
+                <h2>✅ 完了済み</h2>
+                <div class="order-count">
+                    <span id="completedCount">0</span>件
+                </div>
+            </div>
+            <div class="orders-grid" id="completedOrders">
+                <div class="no-orders">
+                    <div class="no-orders-icon">✅</div>
+                    <div>完了済みの注文はありません</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 注文詳細モーダル -->
+    <div class="modal" id="orderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>注文詳細</h3>
+                <button class="close-btn" onclick="closeOrderModal()">✕</button>
+            </div>
+            <div class="order-details" id="orderDetails">
+                <!-- 注文詳細がここに表示される -->
+            </div>
+            <div class="modal-actions" id="modalActions">
+                <!-- アクションボタンがここに表示される -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 新規注文通知 -->
+    <div class="notification" id="notification">
+        <div class="notification-content">
+            <div class="notification-icon">🔔</div>
+            <div class="notification-text">新しい注文が入りました！</div>
+        </div>
+    </div>
+
+    <!-- 音声通知用（非表示） -->
+    <audio id="notificationSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcaCEOayOjScCUELIHN8tmKOAcZZrvr6Z9OEAtNp+PosmMaATeO1/LNeSsFJHvH7t2UQwkTYrPp6atZEwk=" type="audio/wav">
+    </audio>
+
+    <script src="js/config.js"></script>
+    <script src="js/kitchen.js"></script>
+</body>
+</html>
