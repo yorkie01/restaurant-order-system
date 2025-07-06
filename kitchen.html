@@ -13,7 +13,8 @@
         </div>
         <div class="status-info">
             <div class="connection-status" id="connectionStatus">
-                <span class="status-indicator online"></span> 接続中...
+                <span class="status-indicator online"></span>
+                接続中...
             </div>
             <div class="current-time" id="currentTime"></div>
         </div>
@@ -29,8 +30,7 @@
             </div>
             <div class="orders-grid" id="pendingOrders">
                 <div class="no-orders">
-                    <div class="no-orders-icon">✨</div> 
-                    <div>新規注文はありません</div>
+                    <div class="no-orders-icon">✨</div> <div>新規注文はありません</div>
                 </div>
             </div>
         </div>
@@ -44,8 +44,7 @@
             </div>
             <div class="orders-grid" id="preparingOrders">
                 <div class="no-orders">
-                    <div class="no-orders-icon">☕</div> 
-                    <div>調理中の注文はありません</div>
+                    <div class="no-orders-icon">☕</div> <div>調理中の注文はありません</div>
                 </div>
             </div>
         </div>
@@ -59,8 +58,7 @@
             </div>
             <div class="orders-grid" id="completedOrders">
                 <div class="no-orders">
-                    <div class="no-orders-icon">👍</div> 
-                    <div>完了済みの注文はありません</div>
+                    <div class="no-orders-icon">👍</div> <div>完了済みの注文はありません</div>
                 </div>
             </div>
         </div>
@@ -72,8 +70,10 @@
                 <h3>注文詳細</h3>
                 <button class="close-btn" onclick="closeOrderModal()">×</button>
             </div>
-            <div class="order-details" id="orderDetails"></div>
-            <div class="modal-actions" id="modalActions"></div>
+            <div class="order-details" id="orderDetails">
+                </div>
+            <div class="modal-actions" id="modalActions">
+                </div>
         </div>
     </div>
 
@@ -84,7 +84,9 @@
         </div>
     </div>
 
-    <audio id="notificationSound" preload="auto"></audio>
+    <audio id="notificationSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tmJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcaCEOayOjScCUELIHN8tmKOAcZZrvr6Z9OEAtNp+PosmMaATeO1/LNeSsFJHvH7t2UQwkTYrPp6atZEwk=" type="audio/wav">
+    </audio>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/config.js"></script>

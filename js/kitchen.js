@@ -11,6 +11,9 @@ let audioEnabled = false;
 document.addEventListener('DOMContentLoaded', async () => {
     try {
         // Supabase CDNの読み込みを待つ
+        // Note: HTMLで<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>を
+        // </body>の直前で読み込んでいるため、この関数は通常不要ですが、念のため残しておきます。
+        // または、initSupabase()がwindow.supabaseの存在をチェックしているため、このloadSupabaseSDKは厳密には不要かもしれません。
         await loadSupabaseSDK();
         
         // Supabase初期化
@@ -37,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// Supabase SDKの読み込み
+// Supabase SDKの読み込み (HTMLでCDNを読み込んでいるため、通常は不要)
 async function loadSupabaseSDK() {
     return new Promise((resolve) => {
         if (window.supabase) {
@@ -261,8 +264,7 @@ function renderOrdersInSection(sectionId, orderList, status) {
     if (orderList.length === 0) {
         section.innerHTML = `
             <div class="no-orders">
-                <div class="no-orders-icon">✅</div>
-                <div>${getEmptyMessage(status)}</div>
+                <div class="no-orders-icon">${getEmptyIcon(status)}</div> <div>${getEmptyMessage(status)}</div>
             </div>
         `;
         return;
@@ -497,6 +499,20 @@ function getStatusText(status) {
         'cancelled': 'キャンセル'
     };
     return statusMap[status] || status;
+}
+
+// 各セクションの注文がない場合のメッセージに合わせたアイコンを返す
+function getEmptyIcon(status) {
+    switch (status) {
+        case 'pending':
+            return '✨'; // 新規注文なし、待機中
+        case 'preparing':
+            return '☕'; // 調理中なし、手が空いている
+        case 'completed':
+            return '👍'; // 完了済みなし、すべてOK
+        default:
+            return '✅'; // デフォルト
+    }
 }
 
 function getEmptyMessage(status) {
