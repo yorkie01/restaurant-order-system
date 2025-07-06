@@ -21,7 +21,6 @@
     </div>
 
     <div class="main-container">
-        <!-- 新規注文セクション -->
         <div class="orders-section">
             <div class="section-header">
                 <h2>📋 新規注文</h2>
@@ -37,7 +36,6 @@
             </div>
         </div>
 
-        <!-- 調理中セクション -->
         <div class="orders-section">
             <div class="section-header">
                 <h2>🔥 調理中</h2>
@@ -53,7 +51,6 @@
             </div>
         </div>
 
-        <!-- 完了済みセクション -->
         <div class="orders-section">
             <div class="section-header">
                 <h2>✅ 完了済み</h2>
@@ -70,23 +67,17 @@
         </div>
     </div>
 
-    <!-- 注文詳細モーダル -->
     <div class="modal" id="orderModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>注文詳細</h3>
                 <button class="close-btn" onclick="closeOrderModal()">✕</button>
             </div>
-            <div class="order-details" id="orderDetails">
-                <!-- 注文詳細がここに表示される -->
-            </div>
-            <div class="modal-actions" id="modalActions">
-                <!-- アクションボタンがここに表示される -->
-            </div>
+            <div class="order-details" id="orderDetails"></div>
+            <div class="modal-actions" id="modalActions"></div>
         </div>
     </div>
 
-    <!-- 新規注文通知 -->
     <div class="notification" id="notification">
         <div class="notification-content">
             <div class="notification-icon">🔔</div>
@@ -94,7 +85,6 @@
         </div>
     </div>
 
-    <!-- 音声通知用（非表示） -->
     <audio id="notificationSound" preload="auto">
         <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmcaCEOayOjScCUELIHN8tmKOAcZZrvr6Z9OEAtNp+PosmMaATeO1/LNeSsFJHvH7t2UQwkTYrPp6atZEwk=" type="audio/wav">
     </audio>
