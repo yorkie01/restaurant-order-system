@@ -400,20 +400,38 @@ body {
     border-color: #3498db;
     background-color: #e3f2fd;
 }
+.payment-summary {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #ccc;
+    color: #34495e;
+}
+
+#paymentModalCumulativeTotal {
+    color: #e74c3c;
+    font-size: 24px;
+}
 
 .toast {
     position: fixed;
-    bottom: 20px;
+    bottom: 50%; /* 画面中央に近づける */
     left: 50%;
-    transform: translateX(-50%);
-    background-color: #27ae60;
+    transform: translate(-50%, -50%); /* 中央揃えを維持 */
+    background-color: rgba(39, 174, 96, 0.9); /* 背景を少し透過させて視認性向上 */
     color: white;
-    padding: 15px 30px;
-    border-radius: 5px;
-    font-size: 16px;
+    padding: 30px 60px; /* パディングを増やす */
+    border-radius: 10px; /* 角を丸くする */
+    font-size: 24px; /* フォントサイズを大きく */
+    font-weight: bold; /* 太字にする */
+    text-align: center;
     opacity: 0;
-    transition: opacity 0.3s;
+    transition: opacity 0.5s ease-in-out; /* トランジションをより滑らかに */
     z-index: 2000;
+    min-width: 300px; /* 最小幅を設定 */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* 影を追加 */
 }
 
 .toast.show {

@@ -399,7 +399,8 @@ function showPaymentModal() {
         showToast('カートに商品がなく、累計注文もありません。', 'error');
         return;
     }
-    // ここで会計モーダルに現在の累計金額を表示するロジックを追加することも可能
+    // 会計モーダルに現在の累計金額を表示
+    document.getElementById('paymentModalCumulativeTotal').textContent = `¥${cumulativeTotal.toLocaleString()}`;
     document.getElementById('paymentModal').style.display = 'block';
 }
 
@@ -456,7 +457,7 @@ function showToast(message, type = 'success') {
     toast.classList.add('show');
     setTimeout(() => {
         toast.classList.remove('show');
-    }, 3000);
+    }, 5000); // 5秒表示
 }
 
 // グローバル関数として公開（HTMLから呼び出すため）
