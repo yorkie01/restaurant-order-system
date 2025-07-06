@@ -5,6 +5,7 @@ let menuItems = [];
 let realtimeChannel = null;
 let lastNotificationTime = 0;
 let connectionStatus = 'offline';
+let audioEnabled = false;
 
 // ページ読み込み時の初期化
 document.addEventListener('DOMContentLoaded', async () => {
@@ -218,9 +219,21 @@ function showNewOrderNotification(order) {
 
 // 通知音再生
 function playNotificationSound() {
-    const audio = document.getElementById('notificationSound');
-    audio.currentTime = 0;
-    audio.play().catch(e => console.log('音声再生エラー:', e));
+    if (!audioEnabled) {
+        console.log('音声通知が無効です。「音声通知を有効化」ボタンをクリックしてください。');
+        return;
+    }
+    
+    try {
+        const audio = document.getElementById('notificationSound');
+        audio.currentTime = 0;
+        audio.play().catch(e => {
+            console.log('音声再生エラー:', e.message);
+            // 音声再生に失敗しても処理を続行
+        });
+    } catch (error) {
+        console.log('音声通知エラー:', error);
+    }
 }
 
 // 全注文の表示
@@ -391,6 +404,9 @@ function closeOrderModal() {
 
 // UI初期化
 function initializeUI() {
+    // 音声有効化ボタンを追加
+    addAudioEnableButton();
+    
     // 現在時刻表示
     updateCurrentTime();
     setInterval(updateCurrentTime, 1000);
@@ -402,6 +418,47 @@ function initializeUI() {
             closeOrderModal();
         }
     });
+}
+
+// 音声有効化ボタンの追加
+function addAudioEnableButton() {
+    const statusInfo = document.querySelector('.status-info');
+    const audioButton = document.createElement('button');
+    audioButton.id = 'audioEnableBtn';
+    audioButton.innerHTML = '🔊 音声通知を有効化';
+    audioButton.style.cssText = `
+        background: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-top: 8px;
+    `;
+    audioButton.onclick = enableAudio;
+    statusInfo.appendChild(audioButton);
+}
+
+// 音声通知の有効化
+async function enableAudio() {
+    try {
+        const audio = document.getElementById('notificationSound');
+        await audio.play();
+        audio.pause();
+        audio.currentTime = 0;
+        
+        audioEnabled = true;
+        const button = document.getElementById('audioEnableBtn');
+        button.innerHTML = '🔊 音声通知: 有効';
+        button.style.background = '#007bff';
+        button.disabled = true;
+        
+        showSuccess('音声通知が有効になりました');
+    } catch (error) {
+        console.error('音声有効化エラー:', error);
+        showError('音声通知の有効化に失敗しました');
+    }
 }
 
 // 現在時刻更新
@@ -453,15 +510,46 @@ function getEmptyMessage(status) {
 
 function showSuccess(message) {
     console.log('✅', message);
-    // 必要に応じてトースト通知を実装
+    // 簡単なトースト通知
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #28a745;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 4px;
+        z-index: 9999;
+        font-size: 14px;
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
 }
 
 function showError(message) {
     console.error('❌', message);
-    // 必要に応じてエラー通知を実装
+    // 簡単なエラー通知
+    const toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #dc3545;
+        color: white;
+        padding: 12px 20px;
+        border-radius: 4px;
+        z-index: 9999;
+        font-size: 14px;
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 5000);
 }
 
 // グローバル関数として公開
 window.updateOrderStatus = updateOrderStatus;
 window.showOrderDetails = showOrderDetails;
 window.closeOrderModal = closeOrderModal;
+window.enableAudio = enableAudio;
