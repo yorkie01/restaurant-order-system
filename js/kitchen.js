@@ -313,25 +313,25 @@ function getActionButtons(order, status) {
     switch (status) {
         case 'pending':
             return `
-                <button class="action-btn btn-confirm" onclick="updateOrderStatus(${order.id}, 'confirmed')">
+                <button class="action-btn btn-confirm" onclick="updateOrderStatus('${order.id}', 'confirmed')">
                     確認
                 </button>
-                <button class="action-btn btn-start" onclick="updateOrderStatus(${order.id}, 'preparing')">
+                <button class="action-btn btn-start" onclick="updateOrderStatus('${order.id}', 'preparing')">
                     調理開始
                 </button>
-                <button class="action-btn btn-cancel" onclick="updateOrderStatus(${order.id}, 'cancelled')">
+                <button class="action-btn btn-cancel" onclick="updateOrderStatus('${order.id}', 'cancelled')">
                     キャンセル
                 </button>
             `;
         case 'preparing':
             return `
-                <button class="action-btn btn-complete" onclick="updateOrderStatus(${order.id}, 'completed')">
+                <button class="action-btn btn-complete" onclick="updateOrderStatus('${order.id}', 'completed')">
                     完成
                 </button>
             `;
         case 'completed':
             return `
-                <button class="action-btn btn-cancel" onclick="updateOrderStatus(${order.id}, 'preparing')">
+                <button class="action-btn btn-cancel" onclick="updateOrderStatus('${order.id}', 'preparing')">
                     調理中に戻す
                 </button>
             `;
