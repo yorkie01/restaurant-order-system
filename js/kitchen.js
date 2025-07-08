@@ -345,7 +345,7 @@ async function updateOrderStatus(orderId, newStatus) {
     try {
         const { error: updateError } = await supabase
             .from('orders')
-            .update({ 
+            .update({
                 status: newStatus,
                 updated_at: new Date().toISOString()
             })
@@ -353,35 +353,16 @@ async function updateOrderStatus(orderId, newStatus) {
 
         if (updateError) throw updateError;
 
-        // ✅ Supabaseから該当注文を再取得
-        const { data: updatedOrder, error: fetchError } = await supabase
-            .from('orders')
-            .select(`
-                *,
-                order_items (
-                    *,
-                    menu_item_id
-                )
-            `)
-            .eq('id', orderId)
-            .single();
+        // ✅ 再取得せず、payload風データを模して handleOrderUpdate に渡す
+        const fakePayload = {
+            new: {
+                id: orderId,
+                status: newStatus,
+                updated_at: new Date().toISOString()
+            }
+        };
 
-        if (fetchError) throw fetchError;
-
-        // ✅ メニュー情報を補完
-        updatedOrder.order_items = updatedOrder.order_items.map(item => ({
-            ...item,
-            menu_item: menuItems.find(menu => menu.id === item.menu_item_id) || {}
-        }));
-
-        // ✅ ローカル orders 配列を更新
-        const index = orders.findIndex(order => order.id === orderId);
-        if (index !== -1) {
-            orders[index] = updatedOrder;
-        }
-
-        // ✅ 表示を更新
-        renderAllOrders();
+        handleOrderUpdate(fakePayload); // ← これでUIが更新される
 
         showSuccess(`注文ステータスを「${getStatusText(newStatus)}」に更新しました`);
 
@@ -390,6 +371,7 @@ async function updateOrderStatus(orderId, newStatus) {
         showError('ステータスの更新に失敗しました');
     }
 }
+
 
 
 // 注文詳細モーダル表示
