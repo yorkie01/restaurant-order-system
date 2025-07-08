@@ -343,32 +343,54 @@ function getActionButtons(order, status) {
 // 注文ステータス更新
 async function updateOrderStatus(orderId, newStatus) {
     try {
-        const { error } = await supabase
+        const { error: updateError } = await supabase
             .from('orders')
             .update({ 
                 status: newStatus,
                 updated_at: new Date().toISOString()
             })
             .eq('id', orderId);
-        
-        if (error) throw error;
 
-        // ローカル orders の該当注文を更新
+        if (updateError) throw updateError;
+
+        // ✅ Supabaseから該当注文を再取得
+        const { data: updatedOrder, error: fetchError } = await supabase
+            .from('orders')
+            .select(`
+                *,
+                order_items (
+                    *,
+                    menu_item_id
+                )
+            `)
+            .eq('id', orderId)
+            .single();
+
+        if (fetchError) throw fetchError;
+
+        // ✅ メニュー情報を補完
+        updatedOrder.order_items = updatedOrder.order_items.map(item => ({
+            ...item,
+            menu_item: menuItems.find(menu => menu.id === item.menu_item_id) || {}
+        }));
+
+        // ✅ ローカル orders 配列を更新
         const index = orders.findIndex(order => order.id === orderId);
         if (index !== -1) {
-            orders[index].status = newStatus;
+            orders[index] = updatedOrder;
         }
 
-        // 表示を更新
+        // ✅ 表示を更新
         renderAllOrders();
 
         showSuccess(`注文ステータスを「${getStatusText(newStatus)}」に更新しました`);
-        
+
     } catch (error) {
         console.error('ステータス更新エラー:', error);
         showError('ステータスの更新に失敗しました');
     }
 }
+
 
 // 注文詳細モーダル表示
 function showOrderDetails(orderId) {
