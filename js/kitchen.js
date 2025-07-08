@@ -283,7 +283,7 @@ function createOrderCard(order, status) {
     const statusClass = status === 'pending' ? 'new-order' : status;
     
     return `
-        <div class="order-card ${statusClass}" onclick="showOrderDetails(${order.id})">
+        <div class="order-card ${statusClass}" onclick="showOrderDetails('${order.id}')">
             <div class="order-header">
                 <div class="order-number">注文 #${order.id}</div>
                 <div class="table-info">テーブル ${order.table_id}</div>
