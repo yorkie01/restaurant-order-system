@@ -350,9 +350,18 @@ async function updateOrderStatus(orderId, newStatus) {
                 updated_at: new Date().toISOString()
             })
             .eq('id', orderId);
-            
-        if (error) throw error;
         
+        if (error) throw error;
+
+        // ローカル orders の該当注文を更新
+        const index = orders.findIndex(order => order.id === orderId);
+        if (index !== -1) {
+            orders[index].status = newStatus;
+        }
+
+        // 表示を更新
+        renderAllOrders();
+
         showSuccess(`注文ステータスを「${getStatusText(newStatus)}」に更新しました`);
         
     } catch (error) {
